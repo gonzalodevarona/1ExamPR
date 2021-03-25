@@ -45,11 +45,11 @@ public class TCPConnection extends Thread{
 	}
 	
 	@Override
-	public void run() {
+	public synchronized void  run() {
 		try {
 				
 			System.out.println("Conectadome al servidor");
-			socket = new Socket(ip, puerto);
+			socket = new Socket("127.0.01", 5000);
 			System.out.println("Conectado");
 			connectionListener.onConnection();
 			

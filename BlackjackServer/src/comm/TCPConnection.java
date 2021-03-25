@@ -44,7 +44,7 @@ public class TCPConnection extends Thread{
 		try {
 			server = new ServerSocket(puerto);
 			
-			while(true) {
+			while(sessions.size() < 2) {
 				System.out.println("Esperando en el puerto " + puerto);
 				Socket socket = server.accept();
 				System.out.println("Nuevo cliente conectado");
@@ -53,6 +53,7 @@ public class TCPConnection extends Thread{
 				connectionListener.onConnection(id);
 				sessions.add(session);
 				setAllMessageListener(messageListener);
+				System.out.println(sessions.size());
 			}
 			
 			

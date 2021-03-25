@@ -26,6 +26,13 @@ public class DealerWindow extends Stage{
 		contol = new DealerController(this);
 	}
 
+
+	public TextArea getMessagesArea() {
+		return messagesArea;
+	}
+	
+	
+
 	
 
 }

@@ -1,13 +1,13 @@
 package model;
 
-public class DirectMessage {
+public class Message {
 	
-	public String type = "DirectMessage";
+	public String type = "Message";
 	private String body;
 	private String clientId;
 	
 	
-	public DirectMessage( String body, String clientId) {
+	public Message( String body, String clientId) {
 		super();
 		
 		this.body = body;

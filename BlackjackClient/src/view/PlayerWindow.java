@@ -15,12 +15,22 @@ public class PlayerWindow extends Stage {
 	// UI Elements
 	private Scene scene;
 	private PlayerController control;
+	private Label status;
+	private Button stand;
+	private Button takeCard;
+	
+	
+	
 
 	public PlayerWindow() {
 
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("PlayerWindow.fxml"));
 			Parent parent = loader.load();
+			
+			status = (Label) loader.getNamespace().get("status");
+			stand = (Button) loader.getNamespace().get("stand");
+			takeCard = (Button) loader.getNamespace().get("takeCard");
 
 			scene = new Scene(parent, 477, 422);
 			this.setScene(scene);
@@ -32,5 +42,28 @@ public class PlayerWindow extends Stage {
 		}
 
 	}
+
+
+
+
+	public Label getStatus() {
+		return status;
+	}
+
+
+
+
+	public Button getStand() {
+		return stand;
+	}
+
+
+
+
+	public Button getTakeCard() {
+		return takeCard;
+	}
+	
+	
 
 }

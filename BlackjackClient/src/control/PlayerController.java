@@ -2,13 +2,17 @@ package control;
 
 import com.google.gson.Gson;
 
+import comm.Receptor.OnMessageListener;
 import comm.TCPConnection;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import model.DirectMessage;
+import model.Generic;
+import model.Message;
 import view.PlayerWindow;
 
-public class PlayerController implements TCPConnection.OnConnectionListener{
+public class PlayerController implements TCPConnection.OnConnectionListener, OnMessageListener{
 	
 	private PlayerWindow view;
 	private TCPConnection connection;
@@ -38,7 +42,28 @@ public class PlayerController implements TCPConnection.OnConnectionListener{
 		Platform.runLater(
 				() -> {
 					
+					
+				}
+		);
+		
+	}
+
+	@Override
+	public void OnMessage(String msg) {
+		Platform.runLater(
+				() -> {
 					Gson gson = new Gson();
+					Generic msjObj = gson.fromJson(msg, Generic.class);
+					
+						//gano o empato o perdio
+					if (msjObj.getType().equalsIgnoreCase("Message")) {					
+						Message msj = gson.fromJson(msg, Message.class);
+				
+					} else { //recibir cartas
+						DirectMessage msj = gson.fromJson(msg, DirectMessage.class);
+						String x = ""; 
+					}
+					
 				}
 		);
 		

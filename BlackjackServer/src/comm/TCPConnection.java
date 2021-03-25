@@ -95,6 +95,13 @@ public class TCPConnection extends Thread{
 		
 	}
 	
+	
+	
+	public ArrayList<Session> getSessions() {
+		return sessions;
+	}
+	
+	
 	public void sendDirectMessage(String id, String msg) {
 		for(int i=0 ; i<sessions.size() ; i++) {
 			if(sessions.get(i).getId().equals(id)) {

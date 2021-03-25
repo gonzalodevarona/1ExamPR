@@ -1,6 +1,7 @@
 package control;
 
 import comm.Receptor.OnMessageListener;
+import comm.Session;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -13,7 +14,6 @@ import comm.TCPConnection;
 import comm.TCPConnection.OnConnectionListener;
 import javafx.application.Platform;
 import model.DirectMessage;
-import model.Generic;
 import view.DealerWindow;
 
 public class DealerController implements OnMessageListener, OnConnectionListener{
@@ -70,26 +70,51 @@ public class DealerController implements OnMessageListener, OnConnectionListener
 				
 				()->{
 					view.getMessagesArea().appendText("<<< Nuevo cliente conectado " + id + "! >>>\n");
+					if (TCPConnection.getInstance().getSessions().size() ==2) {
+						startGame();
+					}
 				}
 				
 				);
 		
 	}
 
+	private void startGame() {
+		
+		for (int i = 0; i < 3; i++) {
+			String carta = ""+darCartaAleatoria();
+			
+			if (i%2==0) {
+				Session even = TCPConnection.getInstance().getSessions().get(0);
+				sendMessage(even.getId(), carta);
+			} else {
+				Session notEven = TCPConnection.getInstance().getSessions().get(1);
+				sendMessage(notEven.getId(), carta);
+			}
+			
+			
+		}
+	}
+	
+
 	@Override
 	public void OnMessage(String msg) {
 		
 		//Deserializar
 		Gson gson = new Gson();
-		Generic type = gson.fromJson(msg, Generic.class);
 		
-		switch(type.getType()) {
-			
-			case "DirectMessage":
-				DirectMessage m = gson.fromJson(msg, DirectMessage.class);
+		DirectMessage m = gson.fromJson(msg, DirectMessage.class);
 		
-		}
 		
+		
+	}
+	
+	private void sendMessage(String id, String msg) {
+		
+
+		Gson gson = new Gson();
+		String json = gson.toJson(new DirectMessage(msg, id));
+		TCPConnection.getInstance().sendDirectMessage(id, json);
 	}
 	
 

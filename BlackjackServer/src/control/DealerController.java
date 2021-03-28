@@ -77,9 +77,27 @@ public class DealerController extends Thread implements OnMessageListener, OnCon
 			
 		}
 		
-//		if (isPlanta2() && isPlanta1()) {
-//			sendDirectMessage(connection.getSessions().get(1).getId(), "Pasaste 21, espera al jugador 2...");
-//		}
+		if (isPlanta2() && isPlanta1()) {
+			if (getSum1() == getSum2()) {
+				connection.sendBroadcast("Empate");
+			}
+			
+			else if (getSum1()<=21 && getSum2() >=22) {
+				sendMessage(connection.getSessions().get(0).getId(), "GANASTE");
+				sendMessage(connection.getSessions().get(1).getId(), "PERDISTE");
+			}
+			
+			else if (getSum2()<=21 && getSum1() >=22){
+				sendMessage(connection.getSessions().get(1).getId(), "GANASTE");
+				sendMessage(connection.getSessions().get(0).getId(), "PERDISTE");
+			}
+			
+			else{
+				connection.sendBroadcast("Perdiste");
+			}
+			
+			
+		}
 		
 		
 	}
@@ -152,7 +170,7 @@ public class DealerController extends Thread implements OnMessageListener, OnCon
 				
 			} else {
 				
-				setSum2(getSum1()+cartaRandom);
+				setSum2(getSum2()+cartaRandom);
 				sendDirectMessage(idNotEven, carta);
 			}
 			

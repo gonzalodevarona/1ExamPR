@@ -14,10 +14,10 @@ import com.google.gson.Gson;
 import comm.TCPConnection;
 import comm.TCPConnection.OnConnectionListener;
 import javafx.application.Platform;
-import model.DirectMessage;
+import model.*;
 import view.DealerWindow;
 
-public class DealerController implements OnMessageListener, OnConnectionListener{
+public class DealerController extends Thread implements OnMessageListener, OnConnectionListener{
 	
 	private DealerWindow view;
 	private TCPConnection connection;
@@ -26,6 +26,9 @@ public class DealerController implements OnMessageListener, OnConnectionListener
 	
 	private int sum1;
 	private int sum2;
+	
+	private boolean planta1;
+	private boolean planta2;
 	
 	
 	public DealerController(DealerWindow view) {
@@ -42,7 +45,43 @@ public class DealerController implements OnMessageListener, OnConnectionListener
 		sum1=0;
 		sum2=0;
 		
+		planta1=false;
+		planta2=false;
+		
 		iniciarBaraja();
+	}
+	
+	@Override
+	public void run() {
+		boolean one = false;
+		boolean two = false;
+		
+		while(!one ||  !two) {
+			if (sum1>=22) {
+				setPlanta1(true);
+				one=true;
+			}
+			
+			if (sum2>=22) {
+				setPlanta2(true);
+				two=true;
+			}
+			
+			if (isPlanta1()) {
+				sendMessage(connection.getSessions().get(0).getId(), "Pasaste 21, espera al otro jugador...");
+			}
+			
+			if (isPlanta2()) {
+				sendMessage(connection.getSessions().get(1).getId(), "Pasaste 21, espera al otro jugador...");
+			}
+			
+		}
+		
+//		if (isPlanta2() && isPlanta1()) {
+//			sendDirectMessage(connection.getSessions().get(1).getId(), "Pasaste 21, espera al jugador 2...");
+//		}
+		
+		
 	}
 	
 	
@@ -90,43 +129,116 @@ public class DealerController implements OnMessageListener, OnConnectionListener
 
 	private void startGame() {
 		System.out.println("Hay 2 jugadores, juego iniciado");
+		Session even = TCPConnection.getInstance().getSessions().get(0);
+		Session notEven = TCPConnection.getInstance().getSessions().get(1);
+		
+		String idEven = even.getId();
+		String idNotEven = notEven.getId();
+		
+		sendID(idEven);
+		sendID(idNotEven);
+		
+		
+		
 		for (int i = 0; i < 4; i++) {
 			int cartaRandom = darCartaAleatoria();
 			String carta = ""+cartaRandom;
 			
 			if (i%2==0) {
-				Session even = TCPConnection.getInstance().getSessions().get(0);
+				
 				setSum1(getSum1()+cartaRandom);
-				sendDirectMessage(even.getId(), carta);
+				sendDirectMessage(idEven, carta);
+				
 				
 			} else {
-				Session notEven = TCPConnection.getInstance().getSessions().get(1);
+				
 				setSum2(getSum1()+cartaRandom);
-				sendDirectMessage(notEven.getId(), carta);
+				sendDirectMessage(idNotEven, carta);
 			}
 			
 			
 		}
+		
+		this.start();
+		
+	
+		
+	
 	}
 	
 
 	@Override
 	public void OnMessage(String msg) {
 		
-		//Deserializar
 		Gson gson = new Gson();
+		Generic msjObj = gson.fromJson(msg, Generic.class);
 		
-		DirectMessage m = gson.fromJson(msg, DirectMessage.class);
+			//se planta
+		if (msjObj.getType().equalsIgnoreCase("Message")) {					
+			Message msj = gson.fromJson(msg, Message.class);
+			sePlanta(msj);
+			
+			//piden carta
+		} else if (msjObj.getType().equalsIgnoreCase("DirectMessage")) { 
+			DirectMessage msj = gson.fromJson(msg, DirectMessage.class);
+			darOtraCarta(msj);
+			
+			//no pasa nada en tura
+		} else if (msjObj.getType().equalsIgnoreCase("Id")) { 
+			ID msj = gson.fromJson(msg, ID.class);
+			
 		
+		}
 		
 		
 	}
 	
+	private void darOtraCarta(DirectMessage msj) {
+		int cartaRandom = darCartaAleatoria();
+		String carta = ""+cartaRandom;
+		sendDirectMessage(msj.getClientId(), carta);
+		
+	}
+
+	private void sePlanta(Message msj) {
+		int i = connection.findSessionPos(msj.getBody());
+		
+		switch (i) {
+		case 1:
+			setPlanta1(true);
+			break;
+			
+		case 2:
+			setPlanta2(true);
+			break;
+
+		default:
+			break;
+		}
+		
+	}
+
 	private void sendDirectMessage(String id, String msg) {
 		
 
 		Gson gson = new Gson();
 		String json = gson.toJson(new DirectMessage(msg, id));
+		TCPConnection.getInstance().sendDirectMessage(id, json);
+	}
+	
+	private void sendID(String id) {
+		
+
+		Gson gson = new Gson();
+		String json = gson.toJson(new ID(id));
+		TCPConnection.getInstance().sendDirectMessage(id, json);
+	}
+	
+	private void sendMessage(String id, String msg) {
+		
+
+		Gson gson = new Gson();
+		String json = gson.toJson(new Message(msg, id));
 		TCPConnection.getInstance().sendDirectMessage(id, json);
 	}
 
@@ -144,6 +256,22 @@ public class DealerController implements OnMessageListener, OnConnectionListener
 
 	public void setSum2(int sum2) {
 		this.sum2 = sum2;
+	}
+
+	public boolean isPlanta1() {
+		return planta1;
+	}
+
+	public void setPlanta1(boolean planta1) {
+		this.planta1 = planta1;
+	}
+
+	public boolean isPlanta2() {
+		return planta2;
+	}
+
+	public void setPlanta2(boolean planta2) {
+		this.planta2 = planta2;
 	}
 	
 	

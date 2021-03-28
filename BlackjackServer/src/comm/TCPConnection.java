@@ -111,6 +111,15 @@ public class TCPConnection extends Thread{
 		}
 	}
 	
+	public int findSessionPos(String id) {
+		
+		for(int i=0 ; i<sessions.size() ; i++) {
+			if(sessions.get(i).getId().equals(id)) {
+				return(i+1);
+			}
+		}
+		return -1;
+	}
 
 
 }

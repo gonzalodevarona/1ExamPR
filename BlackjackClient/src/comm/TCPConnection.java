@@ -85,6 +85,12 @@ public class TCPConnection extends Thread{
 	}
 	
 	
+	public void sendMessage(String msg) {
+		getEmisor().sendMessage(msg);
+		
+	}
+	
+	
 
 
 }

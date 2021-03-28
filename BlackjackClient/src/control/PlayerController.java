@@ -10,6 +10,7 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Label;
 import model.DirectMessage;
 import model.Generic;
+import model.ID;
 import model.Message;
 import view.PlayerWindow;
 
@@ -17,6 +18,8 @@ public class PlayerController implements TCPConnection.OnConnectionListener, OnM
 	
 	private PlayerWindow view;
 	private TCPConnection connection;
+	
+	private String myId;
 	
 	public PlayerController(PlayerWindow view) {
 		this.view = view;
@@ -49,14 +52,26 @@ public class PlayerController implements TCPConnection.OnConnectionListener, OnM
 	private void activarPedir() {
 		view.getTakeCard().setOnAction(
 				event ->{
-					DirectMessage msj = new DirectMessage("mas","");
+					Gson gson = new Gson();
+					String json = gson.toJson(new DirectMessage("", getMyId()));
+					connection.sendMessage(json);
 					
 				});
 		
 	}
 
 	private void activarPlantarse() {
-		// TODO Auto-generated method stub
+		view.getStand().setOnAction(
+				event ->{
+					
+					
+					Gson gson = new Gson();
+					String json = gson.toJson(new Message("", getMyId()));
+					connection.sendMessage(json);
+					disableButtons();
+					
+					
+				});
 		
 	}
 
@@ -65,7 +80,7 @@ public class PlayerController implements TCPConnection.OnConnectionListener, OnM
 		connection.setListenerOfMessages(this);
 		Platform.runLater(
 				() -> {
-					
+					view.getStatus().setText("Esperando al otro jugador...");
 					
 				}
 		);
@@ -83,10 +98,16 @@ public class PlayerController implements TCPConnection.OnConnectionListener, OnM
 					if (msjObj.getType().equalsIgnoreCase("Message")) {					
 						Message msj = gson.fromJson(msg, Message.class);
 						definirStatus(msj.getBody());
-				
-					} else { //recibir cartas
+						
+						//recibir cartas
+					} else if (msjObj.getType().equalsIgnoreCase("DirectMessage")) { 
 						DirectMessage msj = gson.fromJson(msg, DirectMessage.class);
 						recibir(msj.getBody()); 
+						
+						//recibir ID
+					} else if (msjObj.getType().equalsIgnoreCase("Id")) { 
+						ID msj = gson.fromJson(msg, ID.class);
+						setMyId(msj.getBody());
 					
 					}
 					
@@ -94,6 +115,7 @@ public class PlayerController implements TCPConnection.OnConnectionListener, OnM
 		);
 		
 	}
+
 
 	private boolean recibir(String body) {
 		boolean added = false;
@@ -114,8 +136,30 @@ public class PlayerController implements TCPConnection.OnConnectionListener, OnM
 
 	private void definirStatus(String body) {
 		view.getStatus().setText(body);
+		disableButtons();
+		
 		
 	}
+
+	public String getMyId() {
+		return myId;
+	}
+
+	public void setMyId(String myId) {
+		this.myId = myId;
+	}
+	
+	private void disableButtons() {
+		Platform.runLater(
+				() -> {
+					view.getStand().setDisable(true);
+					view.getTakeCard().setDisable(true);
+					
+				}
+		);
+	}
+	
+	
 	
 	
 

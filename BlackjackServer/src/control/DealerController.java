@@ -17,7 +17,7 @@ import javafx.application.Platform;
 import model.*;
 import view.DealerWindow;
 
-public class DealerController extends Thread implements OnMessageListener, OnConnectionListener{
+public class DealerController  implements OnMessageListener, OnConnectionListener{
 	
 	private DealerWindow view;
 	private TCPConnection connection;
@@ -51,32 +51,26 @@ public class DealerController extends Thread implements OnMessageListener, OnCon
 		iniciarBaraja();
 	}
 	
-	@Override
-	public void run() {
-		boolean one = false;
-		boolean two = false;
+	public void checkWinners() {
 		
-		while(!one ||  !two) {
-			if (sum1>=22) {
-				setPlanta1(true);
-				one=true;
-			}
-			
-			if (sum2>=22) {
-				setPlanta2(true);
-				two=true;
-			}
-			
-			if (isPlanta1()) {
-				sendMessage(connection.getSessions().get(0).getId(), "Pasaste 21, espera al otro jugador...");
-			}
-			
-			if (isPlanta2()) {
-				sendMessage(connection.getSessions().get(1).getId(), "Pasaste 21, espera al otro jugador...");
-			}
+		
+		if (sum1>=22) {
+			setPlanta1(true);
 			
 		}
 		
+		if (sum2>=22) {
+			setPlanta2(true);
+			
+		}
+		
+		if (isPlanta1()) {
+			sendMessage(connection.getSessions().get(0).getId(), "Pasaste 21, espera al otro jugador...");
+		}
+		
+		if (isPlanta2()) {
+			sendMessage(connection.getSessions().get(1).getId(), "Pasaste 21, espera al otro jugador...");
+		}
 		if (isPlanta2() && isPlanta1()) {
 			if (getSum1() == getSum2()) {
 				connection.sendBroadcast("Empate");
@@ -98,14 +92,12 @@ public class DealerController extends Thread implements OnMessageListener, OnCon
 			
 			
 		}
-		
-		
 	}
 	
 	
 	private void iniciarBaraja() {
 		for (int i = 2; i <= 10 ; i++) {
-			for (int j = 0; j < 3; j++) {
+			for (int j = 0; j <= 3; j++) {
 				cartas.add(i);
 			}
 		}
@@ -113,7 +105,7 @@ public class DealerController extends Thread implements OnMessageListener, OnCon
 		for (int i = 0; i < 16; i++) {
 			cartas.add(11);
 		}
-		
+		System.out.println(cartas.size());
 		Collections.shuffle(cartas);
 		
 		
@@ -138,6 +130,9 @@ public class DealerController extends Thread implements OnMessageListener, OnCon
 					view.getMessagesArea().appendText("<<< Nuevo cliente conectado " + id + "! >>>\n");
 					if (TCPConnection.getInstance().getSessions().size() ==2) {
 						startGame();
+						checkWinners();
+				 
+						
 					}
 				}
 				
@@ -177,7 +172,6 @@ public class DealerController extends Thread implements OnMessageListener, OnCon
 			
 		}
 		
-		this.start();
 		
 	
 		
@@ -201,25 +195,40 @@ public class DealerController extends Thread implements OnMessageListener, OnCon
 			DirectMessage msj = gson.fromJson(msg, DirectMessage.class);
 			darOtraCarta(msj);
 			
-			//no pasa nada en tura
-		} else if (msjObj.getType().equalsIgnoreCase("Id")) { 
-			ID msj = gson.fromJson(msg, ID.class);
-			
-		
 		}
+		checkWinners();
 		
 		
 	}
 	
 	private void darOtraCarta(DirectMessage msj) {
+		
 		int cartaRandom = darCartaAleatoria();
 		String carta = ""+cartaRandom;
-		sendDirectMessage(msj.getClientId(), carta);
+		
+		boolean doIt = true;
+		int i = connection.findSessionPos(msj.getClientId());
+		if (i==1 && isPlanta1() ) {
+			doIt = false;
+		} else if (i==2 && isPlanta2() ) {
+			doIt = false;
+		}
+		if (doIt) {
+			if (i==1) {
+				setSum1(getSum1()+cartaRandom);
+			} else {
+				setSum2(getSum2()+cartaRandom);
+			}
+			
+			sendDirectMessage(msj.getClientId(), carta);
+		}
+		checkWinners();
+		
 		
 	}
 
 	private void sePlanta(Message msj) {
-		int i = connection.findSessionPos(msj.getBody());
+		int i = connection.findSessionPos(msj.getClientId()); 
 		
 		switch (i) {
 		case 1:
@@ -233,6 +242,8 @@ public class DealerController extends Thread implements OnMessageListener, OnCon
 		default:
 			break;
 		}
+		
+		checkWinners();
 		
 	}
 

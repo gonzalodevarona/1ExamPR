@@ -28,10 +28,11 @@ public class PlayerController implements TCPConnection.OnConnectionListener, OnM
 		connection = TCPConnection.getInstance();
 		connection.setIp("127.0.0.1");
 		connection.setPuerto(5000);
+		connection.setConnectionListener(this);
 		connection.start();
 		
-		connection.setConnectionListener(this);
-		connection.setListenerOfMessages(this);
+		
+
 		
 		
 		
@@ -61,6 +62,7 @@ public class PlayerController implements TCPConnection.OnConnectionListener, OnM
 
 	@Override
 	public void onConnection() {
+		connection.setListenerOfMessages(this);
 		Platform.runLater(
 				() -> {
 					
@@ -98,7 +100,7 @@ public class PlayerController implements TCPConnection.OnConnectionListener, OnM
 		int value = Integer.parseInt(body);
 		Label[] cards = view.getCards();
 		
-		for (int i = 0; i < cards.length; i++) {
+		for (int i = 0; i < cards.length && !added; i++) {
 			if (cards[i].getText().equalsIgnoreCase("")) {
 				added = true;
 				cards[i].setText(body);

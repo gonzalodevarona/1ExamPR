@@ -65,7 +65,7 @@ public class DealerController implements OnMessageListener, OnConnectionListener
 	private int darCartaAleatoria() {
 		Random rand = new Random();
 		int int_random = rand.nextInt(cartas.size());
-		int_random++;
+		
 		
 		int value = cartas.get(int_random);
 		cartas.remove(int_random);

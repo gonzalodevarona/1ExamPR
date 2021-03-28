@@ -51,12 +51,13 @@ public class TCPConnection extends Thread{
 			System.out.println("Conectadome al servidor");
 			socket = new Socket("127.0.01", 5000);
 			System.out.println("Conectado");
-			connectionListener.onConnection();
+			
 			
 			receptor = new Receptor(socket.getInputStream());
 			receptor.start();
 			
 			emisor = new Emisor(socket.getOutputStream());
+			connectionListener.onConnection();
 			
 			
 		} catch (IOException e) {
@@ -75,7 +76,9 @@ public class TCPConnection extends Thread{
 	public void setConnectionListener(OnConnectionListener connectionListener) {
 		this.connectionListener = connectionListener;
 	}
-	
+	public void connectionListenerOnConnection() {
+		connectionListener.onConnection();
+	}
 	
 	public interface OnConnectionListener{
 		public void onConnection();

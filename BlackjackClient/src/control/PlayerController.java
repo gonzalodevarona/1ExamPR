@@ -7,6 +7,7 @@ import comm.TCPConnection;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.Label;
 import model.DirectMessage;
 import model.Generic;
 import model.Message;
@@ -25,15 +26,36 @@ public class PlayerController implements TCPConnection.OnConnectionListener, OnM
 	
 	public void init() {
 		connection = TCPConnection.getInstance();
-		
-		connection.setConnectionListener(this);
 		connection.setIp("127.0.0.1");
 		connection.setPuerto(5000);
 		connection.start();
 		
+		connection.setConnectionListener(this);
+		connection.setListenerOfMessages(this);
+		
+		
+		
+		
+		activarPlantarse();
+		activarPedir();
+		
 		
 		
 	
+		
+	}
+
+	private void activarPedir() {
+		view.getTakeCard().setOnAction(
+				event ->{
+					DirectMessage msj = new DirectMessage("mas","");
+					
+				});
+		
+	}
+
+	private void activarPlantarse() {
+		// TODO Auto-generated method stub
 		
 	}
 
@@ -58,14 +80,38 @@ public class PlayerController implements TCPConnection.OnConnectionListener, OnM
 						//gano o empato o perdio
 					if (msjObj.getType().equalsIgnoreCase("Message")) {					
 						Message msj = gson.fromJson(msg, Message.class);
+						definirStatus(msj.getBody());
 				
 					} else { //recibir cartas
 						DirectMessage msj = gson.fromJson(msg, DirectMessage.class);
-						String x = ""; 
+						recibir(msj.getBody()); 
+					
 					}
 					
 				}
 		);
+		
+	}
+
+	private boolean recibir(String body) {
+		boolean added = false;
+		int value = Integer.parseInt(body);
+		Label[] cards = view.getCards();
+		
+		for (int i = 0; i < cards.length; i++) {
+			if (cards[i].getText().equalsIgnoreCase("")) {
+				added = true;
+				cards[i].setText(body);
+				view.getStatus().setText("En Partida");
+			}
+		}
+		
+		return added;
+		
+	}
+
+	private void definirStatus(String body) {
+		view.getStatus().setText(body);
 		
 	}
 	

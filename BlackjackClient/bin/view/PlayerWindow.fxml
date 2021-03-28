@@ -29,7 +29,7 @@
                   <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
                </HBox.margin>
             </Label>
-            <Label fx:id="card3" alignment="CENTER" prefHeight="90.0" prefWidth="60.0" style="-fx-border-color: black;" text=""">
+            <Label fx:id="card3" alignment="CENTER" prefHeight="90.0" prefWidth="60.0" style="-fx-border-color: black;" text="">
                <HBox.margin>
                   <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
                </HBox.margin>

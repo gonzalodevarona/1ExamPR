@@ -24,8 +24,8 @@ public class Receptor extends Thread{
 			
 			while(true) {	
 				String msg = breader.readLine();
-				if(listener != null) listener.OnMessage(msg);
-				else System.out.println("No hay observer");
+				if(listener != null) {listener.OnMessage(msg);} 
+				else {System.out.println("No hay observer");}
 			}
 		
 		

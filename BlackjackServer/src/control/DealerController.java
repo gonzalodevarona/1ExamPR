@@ -5,6 +5,7 @@ import comm.Session;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Random;
 import java.util.UUID;
 
@@ -23,6 +24,9 @@ public class DealerController implements OnMessageListener, OnConnectionListener
 	
 	private ArrayList<Integer> cartas = new ArrayList<Integer>();
 	
+	private int sum1;
+	private int sum2;
+	
 	
 	public DealerController(DealerWindow view) {
 		this.view = view;
@@ -35,6 +39,8 @@ public class DealerController implements OnMessageListener, OnConnectionListener
 		connection.start();
 		connection.setConnectionListener(this);
 		connection.setMessageListener(this);
+		sum1=0;
+		sum2=0;
 		
 		iniciarBaraja();
 	}
@@ -50,6 +56,9 @@ public class DealerController implements OnMessageListener, OnConnectionListener
 		for (int i = 0; i < 16; i++) {
 			cartas.add(11);
 		}
+		
+		Collections.shuffle(cartas);
+		
 		
 	}
 	
@@ -80,16 +89,20 @@ public class DealerController implements OnMessageListener, OnConnectionListener
 	}
 
 	private void startGame() {
-		
-		for (int i = 0; i < 3; i++) {
-			String carta = ""+darCartaAleatoria();
+		System.out.println("Hay 2 jugadores, juego iniciado");
+		for (int i = 0; i < 4; i++) {
+			int cartaRandom = darCartaAleatoria();
+			String carta = ""+cartaRandom;
 			
 			if (i%2==0) {
 				Session even = TCPConnection.getInstance().getSessions().get(0);
-				sendMessage(even.getId(), carta);
+				setSum1(getSum1()+cartaRandom);
+				sendDirectMessage(even.getId(), carta);
+				
 			} else {
 				Session notEven = TCPConnection.getInstance().getSessions().get(1);
-				sendMessage(notEven.getId(), carta);
+				setSum2(getSum1()+cartaRandom);
+				sendDirectMessage(notEven.getId(), carta);
 			}
 			
 			
@@ -109,13 +122,32 @@ public class DealerController implements OnMessageListener, OnConnectionListener
 		
 	}
 	
-	private void sendMessage(String id, String msg) {
+	private void sendDirectMessage(String id, String msg) {
 		
 
 		Gson gson = new Gson();
 		String json = gson.toJson(new DirectMessage(msg, id));
 		TCPConnection.getInstance().sendDirectMessage(id, json);
 	}
+
+	public int getSum1() {
+		return sum1;
+	}
+
+	public void setSum1(int sum1) {
+		this.sum1 = sum1;
+	}
+
+	public int getSum2() {
+		return sum2;
+	}
+
+	public void setSum2(int sum2) {
+		this.sum2 = sum2;
+	}
+	
+	
+	
 	
 
 }

@@ -73,7 +73,8 @@ public class DealerController  implements OnMessageListener, OnConnectionListene
 		}
 		if (isPlanta2() && isPlanta1()) {
 			if (getSum1() == getSum2()) {
-				connection.sendBroadcast("Empate");
+				sendMessage(connection.getSessions().get(1).getId(), "Empate");
+				sendMessage(connection.getSessions().get(0).getId(), "Empate");
 			}
 			
 			else if (getSum1()<=21 && getSum2() >=22) {
@@ -87,7 +88,8 @@ public class DealerController  implements OnMessageListener, OnConnectionListene
 			}
 			
 			else{
-				connection.sendBroadcast("Perdiste");
+				sendMessage(connection.getSessions().get(1).getId(), "Perdiste");
+				sendMessage(connection.getSessions().get(0).getId(), "Perdiste");
 			}
 			
 			

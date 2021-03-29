@@ -56,6 +56,7 @@ public class PlayerController implements TCPConnection.OnConnectionListener, OnM
 					String json = gson.toJson(new DirectMessage("", getMyId()));
 					connection.sendMessage(json);
 					
+					
 				});
 		
 	}
@@ -103,6 +104,7 @@ public class PlayerController implements TCPConnection.OnConnectionListener, OnM
 					} else if (msjObj.getType().equalsIgnoreCase("DirectMessage")) { 
 						DirectMessage msj = gson.fromJson(msg, DirectMessage.class);
 						recibir(msj.getBody()); 
+						
 						
 						//recibir ID
 					} else if (msjObj.getType().equalsIgnoreCase("Id")) { 
@@ -159,6 +161,7 @@ public class PlayerController implements TCPConnection.OnConnectionListener, OnM
 		);
 	}
 	
+
 	
 	
 	

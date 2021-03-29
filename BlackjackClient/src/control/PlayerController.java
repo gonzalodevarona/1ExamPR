@@ -8,10 +8,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Label;
-import model.DirectMessage;
-import model.Generic;
-import model.ID;
-import model.Message;
+import model.*;
 import view.PlayerWindow;
 
 public class PlayerController implements TCPConnection.OnConnectionListener, OnMessageListener{
@@ -55,6 +52,7 @@ public class PlayerController implements TCPConnection.OnConnectionListener, OnM
 					Gson gson = new Gson();
 					String json = gson.toJson(new DirectMessage("", getMyId()));
 					connection.sendMessage(json);
+					disableButtons();
 					
 					
 				});
@@ -111,6 +109,10 @@ public class PlayerController implements TCPConnection.OnConnectionListener, OnM
 						ID msj = gson.fromJson(msg, ID.class);
 						setMyId(msj.getBody());
 					
+						//recibir turno
+					} else if (msjObj.getType().equalsIgnoreCase("On")) { 
+						ableButtons();
+					
 					}
 					
 				}
@@ -128,7 +130,8 @@ public class PlayerController implements TCPConnection.OnConnectionListener, OnM
 			if (cards[i].getText().equalsIgnoreCase("")) {
 				added = true;
 				cards[i].setText(body);
-				view.getStatus().setText("En Partida");
+				view.getStatus().setText("En Partida - Esperando turno");
+				
 			}
 		}
 		
@@ -156,6 +159,17 @@ public class PlayerController implements TCPConnection.OnConnectionListener, OnM
 				() -> {
 					view.getStand().setDisable(true);
 					view.getTakeCard().setDisable(true);
+					
+				}
+		);
+	}
+	
+	private void ableButtons() {
+		Platform.runLater(
+				() -> {
+					view.getStand().setDisable(false);
+					view.getTakeCard().setDisable(false);
+					view.getStatus().setText("En Partida - Es tu turno");
 					
 				}
 		);

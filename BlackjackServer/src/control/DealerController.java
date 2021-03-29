@@ -65,11 +65,11 @@ public class DealerController  implements OnMessageListener, OnConnectionListene
 		}
 		
 		if (isPlanta1()) {
-			sendMessage(connection.getSessions().get(0).getId(), "Pasaste 21, espera al otro jugador...");
+			sendMessage(connection.getSessions().get(0).getId(), "Espera al otro jugador...");
 		}
 		
 		if (isPlanta2()) {
-			sendMessage(connection.getSessions().get(1).getId(), "Pasaste 21, espera al otro jugador...");
+			sendMessage(connection.getSessions().get(1).getId(), "Espera al otro jugador...");
 		}
 		if (isPlanta2() && isPlanta1()) {
 			if (getSum1() == getSum2()) {
@@ -132,6 +132,7 @@ public class DealerController  implements OnMessageListener, OnConnectionListene
 					view.getMessagesArea().appendText("<<< Nuevo cliente conectado " + id + "! >>>\n");
 					if (TCPConnection.getInstance().getSessions().size() ==2) {
 						startGame();
+						sendOn(1);
 						checkWinners();
 				 
 						
@@ -218,8 +219,10 @@ public class DealerController  implements OnMessageListener, OnConnectionListene
 		if (doIt) {
 			if (i==1) {
 				setSum1(getSum1()+cartaRandom);
+				sendOn(1);
 			} else {
 				setSum2(getSum2()+cartaRandom);
+				sendOn(0);
 			}
 			
 			sendDirectMessage(msj.getClientId(), carta);
@@ -235,10 +238,12 @@ public class DealerController  implements OnMessageListener, OnConnectionListene
 		switch (i) {
 		case 1:
 			setPlanta1(true);
+			sendOn(1);
 			break;
 			
 		case 2:
 			setPlanta2(true);
+			sendOn(0);
 			break;
 
 		default:
@@ -272,10 +277,45 @@ public class DealerController  implements OnMessageListener, OnConnectionListene
 		String json = gson.toJson(new Message(msg, id));
 		TCPConnection.getInstance().sendDirectMessage(id, json);
 	}
+	
+	private void sendOn(int i) {
+		String id = getSessionId(i);
+		
+
+		Gson gson = new Gson();
+		String json = gson.toJson(new On(id));
+		
+		if (i == 0) {
+			
+			if (isPlanta1()) {
+				id = getSessionId(1);
+				json = gson.toJson(new On(id));
+			}
+		} else {
+			
+			if (isPlanta2() ) {
+				id = getSessionId(0);
+				json = gson.toJson(new On(id));
+			}
+			
+		}
+		TCPConnection.getInstance().sendDirectMessage(id, json);
+		
+		
+		
+	}
+	
+	private String getSessionId(int i) {
+		
+
+		return connection.getSessions().get(i).getId();
+	}
 
 	public int getSum1() {
 		return sum1;
 	}
+	
+	
 
 	public void setSum1(int sum1) {
 		this.sum1 = sum1;
